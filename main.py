@@ -31,14 +31,14 @@ async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
     try:
-        # Usando gemini-1.5-flash para asegurar compatibilidad total
+        # Usando la forma recomendada para la nueva librería con la configuración limpia
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model='gemini-1.5-flash',
             contents=texto_usuario,
             config=types.GenerateContentConfig(
                 system_instruction=REM_SYSTEM_PROMPT,
-                temperature=0.7,
-            )
+                temperature=0.7
+            ),
         )
         respuesta_rem = response.text
     except Exception as e:
