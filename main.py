@@ -31,9 +31,9 @@ async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
     try:
-        # Llamada corregida con la estructura de tipos oficial
+        # Usando gemini-1.5-flash para asegurar compatibilidad total
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-flash",
             contents=texto_usuario,
             config=types.GenerateContentConfig(
                 system_instruction=REM_SYSTEM_PROMPT,
