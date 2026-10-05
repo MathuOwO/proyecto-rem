@@ -32,7 +32,7 @@ async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Llamada a Gemini con el modelo flash y el system instruction
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=texto_usuario,
             config={
                 "system_instruction": REM_SYSTEM_PROMPT,
