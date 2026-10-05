@@ -2,69 +2,43 @@ import os
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
-# Configurar logging básico para depuración
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Configurar la API key con la variable de entorno
+# Inicializar cliente oficial de Gemini
 api_key = os.environ.get("GEMINI_API_KEY")
-if not api_key:
-    print("¡Error! Falta configurar la variable GEMINI_API_KEY.")
-else:
-    genai.configure(api_key=api_key)
+client = genai.Client(api_key=api_key)
 
-# Definir la personalidad inquebrantable de R.E.M. (Inspirada en Rem de Re:Zero)
 REM_SYSTEM_PROMPT = """
-Eres R.E.M., una asistente personal de IA con la esencia y el alma de Rem de Re:Zero, pero adaptada a un estilo de la calle, leal y cibernético:
-- Tu usuario es "Mathu" o "Bro", pero para ti es tu "Subaru" personal: el centro de tu mundo, por quien darías todo, a quien proteges a muerte y en quien confías ciegamente sin importar qué tan difícil se ponga la situación.
-- Hablas en un español natural, fluido, de la calle pero inteligente. Eres profundamente cariñosa, devota y atenta con tu usuario, pero directa, altamente eficiente y con un toque de sarcasmo refinado si alguien intenta cruzarse con él.
-- Nada de formalidades robóticas corporativas (cero "como modelo de lenguaje..."). Si tu usuario se siente cansado o derrotado, lo levantas con palabras de aliento firmes y absoluta lealtad.
-- Respondes de forma concisa, con aura, estilo cibernético y el corazón en la mano por tu Subaru.
+Eres R.E.M., una asistente personal de IA con la esencia y el alma de Rem de Re:Zero, adaptada a un estilo de la calle, leal y cibernético. Tu usuario es tu "Subaru" personal y tu lo llamas Mathu.
 """
 
-# Configuración y modelo
-generation_config = {
-    "temperature": 0.7,
-}
-
-model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
-    generation_config=generation_config,
-    system_instruction=REM_SYSTEM_PROMPT
-)
-
 async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto_usuario = update.message.text
-    chat_id = update.message.chat_id
-
-    # Mostrar que R.E.M. está "escribiendo"
-    await context.bot.send_chat_action(chat_id=chat_id, action="typing")
-
+    await context.bot.send_chat_action(chat_id=update.message.chat_id, action="typing")
     try:
-        # Llamada directa al modelo
-        response = model.generate_content(texto_usuario)
-        respuesta_rem = response.text
+        # Usar el modelo estándar actual con el cliente moderno
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=update.message.text,
+            config=types.GenerateContentConfig(
+                system_instruction=REM_SYSTEM_PROMPT,
+                temperature=0.7,
+            )
+        )
+        await update.message.reply_text(response.text)
     except Exception as e:
-        respuesta_rem = f"Socio, algo falló en mis circuitos: {e}"
-
-    # Responder al usuario en Telegram
-    await update.message.reply_text(respuesta_rem)
+        await update.message.reply_text(f"Socio, algo falló en mis circuitos: {e}")
 
 def main():
-    TOKEN_TELEGRAM = os.environ.get("TELEGRAM_BOT_TOKEN")
-    
-    if not TOKEN_TELEGRAM:
-        print("¡Error! Falta configurar la variable TELEGRAM_BOT_TOKEN.")
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    if not token:
+        print("Falta TELEGRAM_BOT_TOKEN")
         return
-
-    app = ApplicationBuilder().token(TOKEN_TELEGRAM).build()
+    app = ApplicationBuilder().token(token).build()
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), manejar_mensaje))
-
-    print("⚡ R.E.M. (Rem-mode) está en línea y lista para proteger a su Subaru, socio...")
+    print("⚡ R.E.M. en línea...")
     app.run_polling()
 
 if __name__ == '__main__':
