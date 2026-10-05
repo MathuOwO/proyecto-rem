@@ -22,13 +22,13 @@ Eres R.E.M., una asistente personal de IA con la esencia y el alma de Rem de Re:
 - Respondes de forma concisa, con aura, estilo cibernético y el corazón en la mano por tu Subaru.
 """
 
-# Inicializar el modelo con system instruction integrado
+# Configuración y modelo estable (gemini-1.5-pro)
 generation_config = {
     "temperature": 0.7,
 }
 
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-1.5-pro",
     generation_config=generation_config,
     system_instruction=REM_SYSTEM_PROMPT
 )
@@ -41,7 +41,7 @@ async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
     try:
-        # Llamada limpia con la librería estable
+        # Llamada directa al modelo estable
         response = model.generate_content(texto_usuario)
         respuesta_rem = response.text
     except Exception as e:
