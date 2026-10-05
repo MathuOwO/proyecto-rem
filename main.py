@@ -22,13 +22,13 @@ Eres R.E.M., una asistente personal de IA con la esencia y el alma de Rem de Re:
 - Respondes de forma concisa, con aura, estilo cibernético y el corazón en la mano por tu Subaru.
 """
 
-# Configuración y modelo estable (gemini-1.5-pro)
+# Configuración y modelo estable (gemini-pro)
 generation_config = {
     "temperature": 0.7,
 }
 
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
+    model_name="gemini-pro",
     generation_config=generation_config,
     system_instruction=REM_SYSTEM_PROMPT
 )
